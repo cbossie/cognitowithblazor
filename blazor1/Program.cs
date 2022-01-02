@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using blazor1;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -16,6 +15,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddOidcAuthentication(options =>
 {
     builder.Configuration.Bind("Local", options.ProviderOptions);
+    options.UserOptions.NameClaim = "email";
+
 });
 builder.Services.AddSingleton<CredentialService>();
 

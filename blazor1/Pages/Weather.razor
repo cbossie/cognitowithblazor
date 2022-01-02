@@ -1,11 +1,21 @@
 ﻿@page "/weather"
 @inject IWeatherApiService Api
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>GetWeatherData</PageTitle>
 
 <h1>Retreive Data from API</h1>
 
-<button class="btn btn-primary" @onclick="GetData">Retrieve Data</button>
+<AuthorizeView>
+    <Authorized>
+        <button class="btn btn-primary" @onclick="GetData">Retrieve Data</button>
+    </Authorized>
+    <NotAuthorized>
+        Login to activate this component.
+    </NotAuthorized>
+</AuthorizeView>
+
+
 
 @if (Forecasts == null)
 {
@@ -47,7 +57,12 @@ else
         Forecasts =  await Api.GetWeatherForecast();
     }
 
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        int a = 2;
+    }
 
 
 

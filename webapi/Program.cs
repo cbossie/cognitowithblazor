@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using webapi.Model;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +19,19 @@ builder.Services.AddCors(policy =>
         .AllowAnyMethod());
 });
 
+CognitoSettings cognito = new();
+builder.Configuration.Bind(JwtBearerDefaults.AuthenticationScheme, cognito);
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
+        options.Authority = cognito.Authority;
+        options.RequireHttpsMetadata = false;
+    });
+
+
+
+
 
 var app = builder.Build();
 
@@ -27,6 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
