@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blazor1", "blazor1\blazor1.csproj", "{C311BE1D-B740-4FFA-BEBC-D922554170DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "webapi", "webapi\webapi.csproj", "{B41FBB0E-2EBF-4469-9F2C-F2EBCDAA3914}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "webapi", "webapi\webapi.csproj", "{B41FBB0E-2EBF-4469-9F2C-F2EBCDAA3914}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
