@@ -2,6 +2,8 @@ using System.Net.Mime;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Cognito;
+using Amazon.CDK.AWS.SSM;
+
 
 namespace Infra;
 
@@ -107,6 +109,33 @@ public class InfraStack : Stack
             "phone",
             "profile"
         };
+
+
+        //Parameters
+        StringParameter clientIdParamater = new (this, "clientIdParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/clientid",
+            StringValue = client.UserPoolClientId
+        });
+
+        StringParameter userPoolId = new (this, "userPoolIdParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/userpoolid",
+            StringValue = pool.UserPoolId
+        });
+
+        StringParameter poolIdParameter =  new (this, "poolIdParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/authority",
+            StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}"
+        });
+
+        StringParameter poolpoolDomainParameter =  new (this, "PoolDomainParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/pooldomain",
+            StringValue = domain.BaseUrl()
+        });
+
 
         //Outputs
         new CfnOutput(this, "clientIdOutput", new CfnOutputProps{
