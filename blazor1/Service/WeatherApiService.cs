@@ -21,7 +21,7 @@ public class WeatherApiService : IWeatherApiService
     private async Task UpdateHttpClient()
     {
         var cognitoData = await CredService.GetCognitoCredentials();
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cognitoData.AccessToken);
+        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cognitoData.IdToken);
     }
 
 
