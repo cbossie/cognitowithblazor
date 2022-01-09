@@ -11,6 +11,8 @@ public class InfraStack : Stack
 {
     internal InfraStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
     {
+        string clientUrl = $"{this.Node.TryGetContext("client_url")}";
+
         Table ddbTable = new(this, "datatable", new TableProps
         {
             RemovalPolicy = RemovalPolicy.DESTROY,
@@ -91,11 +93,11 @@ public class InfraStack : Stack
 
         var cfnClient = client.Node.DefaultChild as CfnUserPoolClient;
         cfnClient.CallbackUrLs = new string []{
-            "https://localhost:7226",
-            "https://localhost:7226/authentication/login-callback"
+            $"{clientUrl}",
+            $"{clientUrl}/authentication/login-callback"
         };
         cfnClient.LogoutUrLs = new string[]{
-            "https://localhost:7226/authentication/logout-callback"
+            $"{clientUrl}/authentication/logout-callback"
         };
         cfnClient.SupportedIdentityProviders = new string []{"COGNITO"};
 
