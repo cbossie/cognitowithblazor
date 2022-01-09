@@ -35,6 +35,7 @@ builder.Services.AddCors(policy =>
 
 CognitoSettings cognito = new();
 builder.Configuration.Bind(cognito);
+builder.Services.AddSingleton(cognito);
 
 builder.Services.AddAuthentication(options =>
     {
@@ -45,10 +46,8 @@ builder.Services.AddAuthentication(options =>
     {
 
         options.IncludeErrorDetails = true;
-
-
         options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
-        options.Authority = cognito.Authority;
+        options.Authority = cognito.ValidIssuer;
         options.RequireHttpsMetadata = false;
 
 

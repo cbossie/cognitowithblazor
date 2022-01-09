@@ -126,16 +126,45 @@ public class InfraStack : Stack
 
         StringParameter poolIdParameter =  new (this, "poolIdParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/authority",
+            ParameterName = "/cognitoapi/metadataurl",
+            StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}/.well-known/openid-configuration"
+        });
+        
+        StringParameter validIssueParameter =  new (this, "issuerParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/validissuer",
             StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}"
         });
-
-        StringParameter poolpoolDomainParameter =  new (this, "PoolDomainParam", new StringParameterProps{
+        
+        StringParameter jwksparameter =  new (this, "jwksParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/pooldomain",
-            StringValue = domain.BaseUrl()
+            ParameterName = "/cognitoapi/jwks",
+            StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}/.well-known/jwks.json"
         });
 
+        StringParameter redirectUriTemplate =  new (this, "redirectUriTemplate", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/redirecturitemplate",
+            StringValue = "https://{0}/authentication/login-callback"
+        });
+
+        StringParameter logpoutRedirectUriTemplate =  new (this, "logoutRedirectUriTemplate", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/postlogoutredirecturitemplate",
+            StringValue = "https://{0}/authentication/logout-callback"
+        });
+
+        StringParameter poolDomainParameter =  new (this, "PoolDomainParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/authority",
+            StringValue = $"{domain.BaseUrl()}/{cfnPool.Ref}"
+        });
+
+        StringParameter responseTypeParameter =  new (this, "responseTypeParameter", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/responseType",
+            StringValue = "code"
+        });
 
         //Outputs
         new CfnOutput(this, "clientIdOutput", new CfnOutputProps{
