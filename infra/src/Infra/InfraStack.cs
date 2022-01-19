@@ -12,6 +12,7 @@ public class InfraStack : Stack
     internal InfraStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
     {
         string clientUrl = $"{this.Node.TryGetContext("client_url")}";
+        string tableName = "TestTable";
 
         Table ddbTable = new(this, "datatable", new TableProps
         {
@@ -22,7 +23,7 @@ public class InfraStack : Stack
                 Type = AttributeType.STRING,
                 Name = "Id"
             },
-            TableName = "TestTable",
+            TableName = tableName,
         });
 
         // Role
@@ -167,6 +168,13 @@ public class InfraStack : Stack
             ParameterName = "/cognitoapi/responseType",
             StringValue = "code"
         });
+
+        StringParameter tableNameParameter =  new (this, "tableNameParameter", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = "/cognitoapi/tableName",
+            StringValue = tableName
+        });        
+
 
         //Outputs
         new CfnOutput(this, "clientIdOutput", new CfnOutputProps{

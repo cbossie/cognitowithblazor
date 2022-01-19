@@ -10,12 +10,12 @@ public class DataService : IDataService
     ICognitoCredentialProvider CredentialProvider { get; init; }
     private DynamoDBContext? DBContext { get; set; }
 
+    private DynamoDbConfig DbConfig { get; init; }
 
-
-    public DataService(ICognitoCredentialProvider credProvider)
+    public DataService(ICognitoCredentialProvider credProvider, DynamoDbConfig ddb)
     {
         CredentialProvider = credProvider;
-
+        DbConfig = ddb;
     }
 
     private async Task<DynamoDBContext> GetContext()
@@ -33,13 +33,13 @@ public class DataService : IDataService
     public async Task AddDataItem(DynamoDataItem item)
     {
         var cli = await GetContext();
-        await cli.SaveAsync(item);
+        await cli.SaveAsync(item, new DynamoDBOperationConfig { OverrideTableName = DbConfig.TableName });
     }
 
     public async Task<DynamoDataItem> GetDataItem(string itemId)
     {
         var cli = await GetContext();
-        var item = await cli.LoadAsync<DynamoDataItem>(itemId);
+        var item = await cli.LoadAsync<DynamoDataItem>(itemId, new DynamoDBOperationConfig { OverrideTableName = DbConfig.TableName });
         return item;
  
     }

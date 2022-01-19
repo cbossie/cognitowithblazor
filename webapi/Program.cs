@@ -22,6 +22,8 @@ builder.Configuration.AddSystemsManager(configSource => {
 
 
 
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -41,6 +43,11 @@ builder.Services.AddCors(policy =>
 CognitoSettings cognito = new();
 builder.Configuration.Bind(cognito);
 builder.Services.AddSingleton(cognito);
+
+DynamoDbConfig ddb = new();
+builder.Configuration.Bind(ddb);
+builder.Services.AddSingleton(ddb);
+
 
 builder.Services.AddAuthentication(options =>
     {
