@@ -8,6 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" Version="3.0.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.7.0.113" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.7.1.85" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.2.8" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
