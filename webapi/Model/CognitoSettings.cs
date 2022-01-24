@@ -26,4 +26,6 @@ public class CognitoSettings
     public string? ValidIssuer { get; set; }
 
     public string? Jwks { get; set; }
+
+    public string? IdentityPoolId { get; set; }
 }

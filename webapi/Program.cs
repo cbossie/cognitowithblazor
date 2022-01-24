@@ -11,18 +11,17 @@ using webapi.Model;
 using webapi.Service;
 using System.Security.Principal;
 using Amazon.Extensions.NETCore.Setup;
+using Amazon.Extensions.Configuration;
+using webapi.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var awsOptions = builder.Configuration.GetAWSOptions();
+builder.Services.AddSingleton(awsOptions);
 builder.Configuration.AddSystemsManager(configSource => {
     configSource.Path = "/cognitoapi/";
     configSource.AwsOptions = awsOptions;
 });
-
-
-
-
 
 // Add services to the container.
 
@@ -48,7 +47,6 @@ DynamoDbConfig ddb = new();
 builder.Configuration.Bind(ddb);
 builder.Services.AddSingleton(ddb);
 
-
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,16 +59,19 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
         options.Authority = cognito.ValidIssuer;
         options.RequireHttpsMetadata = false;
-
-
+        options.EventsType = typeof(ApiJwtBearerEvents);
     });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IPrincipal>(provider => provider?.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? throw new Exception("No Identity"));
+builder.Services.AddTransient<IDataService, DataService>();
 
 // AWS Services
 builder.Services.AddAWSService<IAmazonCognitoIdentity>();
+
+builder.Services.AddScoped<ApiJwtBearerEvents>();
 builder.Services.AddScoped<ICognitoCredentialProvider, CognitoCredentialProvider>();
+builder.Services.AddScoped(_ => new CognitoAWSCredentials(cognito.IdentityPoolId, awsOptions.Region));
 
 var app = builder.Build();
 

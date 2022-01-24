@@ -2,6 +2,6 @@
 {
     public class DynamoDbConfig
     {
-        public string TableName { get; set; } = String.Empty;
+        public string TablePrefix { get; set; } = String.Empty;
     }
 }

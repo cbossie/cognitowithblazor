@@ -12,7 +12,8 @@ public class InfraStack : Stack
     internal InfraStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
     {
         string clientUrl = $"{this.Node.TryGetContext("client_url")}";
-        string tableName = "TestTable";
+        string tablePrefix = "Test";
+        string parameterPrefix = "/cognitoapi/";
 
         Table ddbTable = new(this, "datatable", new TableProps
         {
@@ -23,7 +24,7 @@ public class InfraStack : Stack
                 Type = AttributeType.STRING,
                 Name = "Id"
             },
-            TableName = tableName,
+            TableName = $"{tablePrefix}Table",
         });
 
         // Role
@@ -114,67 +115,98 @@ public class InfraStack : Stack
         };
 
 
-        //Parameters
-        StringParameter clientIdParamater = new (this, "clientIdParam", new StringParameterProps{
+        // IdentityPool
+         CfnIdentityPool identityPool = new CfnIdentityPool(this, "api-identity-pool", new CfnIdentityPoolProps
+         {
+             AllowUnauthenticatedIdentities = false,
+             IdentityPoolName = "api-identity-pool",
+
+             CognitoIdentityProviders = new CfnIdentityPool.CognitoIdentityProviderProperty[] { new CfnIdentityPool.CognitoIdentityProviderProperty(){
+                 ClientId = client.UserPoolClientId,
+                 ProviderName = $"cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}",
+                 ServerSideTokenCheck = true
+             }}
+         });
+        
+
+            
+
+        CfnIdentityPoolRoleAttachment identityPoolRoleAttachment = new CfnIdentityPoolRoleAttachment(this, "api-identity-pool-att", new CfnIdentityPoolRoleAttachmentProps
+        {
+            IdentityPoolId = identityPool.Ref,
+            Roles = new Dictionary<string, string>{
+                { "authenticated", role.RoleArn  }
+            }
+        });
+
+
+
+        StringParameter identityPoolParameter = new (this, "identityPoolParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/clientid",
+            ParameterName = $"{parameterPrefix}identitypoolid",
+            StringValue = identityPool.Ref
+        });
+
+        //Parameters
+        StringParameter clientIdParameter = new (this, "clientIdParam", new StringParameterProps{
+            DataType = ParameterDataType.TEXT,
+            ParameterName = $"{parameterPrefix}clientid",
             StringValue = client.UserPoolClientId
         });
 
         StringParameter userPoolId = new (this, "userPoolIdParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/userpoolid",
+            ParameterName = $"{parameterPrefix}userpoolid",
             StringValue = pool.UserPoolId
         });
 
         StringParameter poolIdParameter =  new (this, "poolIdParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/metadataurl",
+            ParameterName = $"{parameterPrefix}metadataurl",
             StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}/.well-known/openid-configuration"
         });
-        
+
         StringParameter validIssueParameter =  new (this, "issuerParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/validissuer",
+            ParameterName = $"{parameterPrefix}validissuer",
             StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}"
         });
-        
+
         StringParameter jwksparameter =  new (this, "jwksParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/jwks",
+            ParameterName = $"{parameterPrefix}jwks",
             StringValue = $"https://cognito-idp.{this.Region}.amazonaws.com/{pool.UserPoolId}/.well-known/jwks.json"
         });
 
         StringParameter redirectUriTemplate =  new (this, "redirectUriTemplate", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/redirecturitemplate",
+            ParameterName = $"{parameterPrefix}redirecturitemplate",
             StringValue = "https://{0}/authentication/login-callback"
         });
 
         StringParameter logpoutRedirectUriTemplate =  new (this, "logoutRedirectUriTemplate", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/postlogoutredirecturitemplate",
+            ParameterName = $"{parameterPrefix}postlogoutredirecturitemplate",
             StringValue = "https://{0}/authentication/logout-callback"
         });
 
         StringParameter poolDomainParameter =  new (this, "PoolDomainParam", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/authority",
+            ParameterName = $"{parameterPrefix}authority",
             StringValue = $"{domain.BaseUrl()}/{cfnPool.Ref}"
         });
 
         StringParameter responseTypeParameter =  new (this, "responseTypeParameter", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/responseType",
+            ParameterName = $"{parameterPrefix}responseType",
             StringValue = "code"
         });
 
-        StringParameter tableNameParameter =  new (this, "tableNameParameter", new StringParameterProps{
+        StringParameter tablePrefixParameter =  new (this, "tablePrefixParameter", new StringParameterProps{
             DataType = ParameterDataType.TEXT,
-            ParameterName = "/cognitoapi/tableName",
-            StringValue = tableName
-        });        
-
+            ParameterName = $"{parameterPrefix}tablePrefix",
+            StringValue = tablePrefix
+        });
 
         //Outputs
         new CfnOutput(this, "clientIdOutput", new CfnOutputProps{

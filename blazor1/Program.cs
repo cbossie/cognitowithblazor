@@ -27,6 +27,9 @@ LocalSettings localSettings = new();
 builder.Configuration.Bind("LocalSettings", localSettings);
 builder.Services.AddSingleton(localSettings);
 
+// Data Service
+builder.Services.AddScoped<IDataService, DataService>();
+
 // OIDC Configuration 
 //Cognito Settings from the API
 AuthenticationOptions authOptions = await ConfigurationUtility.GetAuthenticationOptions(cfgApiConfig.Endpoint, localSettings.Host);

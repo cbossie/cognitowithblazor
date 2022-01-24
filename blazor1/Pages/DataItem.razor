@@ -1,0 +1,37 @@
+﻿@page "/dataitem"
+
+@inject IDataService DataSvc;
+
+<PageTitle>Edit Item</PageTitle>
+
+<h1>Item</h1>
+
+
+
+
+
+<button class="btn btn-primary" @onclick="SaveData">Click me</button>
+
+@code {
+    private string id = Guid.NewGuid().ToString();
+
+    async Task SaveData()
+    {
+        var item = new Model.DataItemModel
+            {
+                ItemId = id,
+                ItemAmount = DateTime.Now.Millisecond,
+                ItemName = $"Name = {id}"
+            };
+        var res = await DataSvc.SaveItem(item);
+
+        var a = 4;
+    }
+
+
+
+
+
+
+
+}
