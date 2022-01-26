@@ -23,11 +23,11 @@ public class DataItemController : ControllerBase
     [ProducesResponseType(404)]
     [Authorize]
 
-    public async Task<ActionResult<List<DynamoDataItem>>> Get(string? id)
+    public async Task<ActionResult<List<DynamoDataItem>>> Get(string id)
     {
         List<DynamoDataItem> items = new();
 
-        var data = await Svc.GetDataItem(id ?? string.Empty);
+        var data = await Svc.GetDataItem(id);
         if(data is null)
         {
             return NotFound(id);
@@ -49,4 +49,18 @@ public class DataItemController : ControllerBase
         var result = await Svc.SaveDataItem(item);
         return Ok(result);
     }
+    [HttpGet]
+    [ProducesResponseType(200)]
+
+    public async Task<ActionResult<IEnumerable<DynamoDataItem>>> Get()
+    {
+        List<DynamoDataItem> items = new();
+
+        var data = await Svc.ListDataItems();
+        items.AddRange(data);
+        return Ok(data);
+    }
+
+
+
 }

@@ -27,14 +27,7 @@ public class InfraStack : Stack
             TableName = $"{tablePrefix}Table",
         });
 
-        // Role
-        Role role = new(this, "ddbRole", new RoleProps
-        {
-            Description = "Role allows DynamoDB Access",
-            AssumedBy = new Amazon.CDK.AWS.IAM.AccountPrincipal(this.Account)
-        });
 
-        ddbTable.GrantReadWriteData(role);
 
         //User Pool;
         string userPoolName = "api-pool";
@@ -73,7 +66,6 @@ public class InfraStack : Stack
         CfnUserPoolGroup Group = new(this, "group", new CfnUserPoolGroupProps
         {
             GroupName = "ApiUsers",
-            RoleArn = role.RoleArn,
             Description = "Group for normal users",
             UserPoolId = pool.UserPoolId
         });
@@ -127,9 +119,65 @@ public class InfraStack : Stack
                  ServerSideTokenCheck = true
              }}
          });
-        
 
-            
+
+
+        // Update Role
+
+        var prin = new FederatedPrincipal("cognito-identity.amazonaws.com",
+        new Dictionary<string, object>
+        {
+            {
+                "StringEquals", new Dictionary<string,string>
+                {
+                    {
+                         "cognito-identity.amazonaws.com:aud", identityPool.Ref
+                    }
+                }
+            },
+            {
+                "ForAnyValue:StringLike", new Dictionary<string,string>
+                {
+                    {
+                        "cognito-identity.amazonaws.com:amr", "authenticated"
+                    }
+                }
+            }
+        }, "sts:AssumeRoleWithWebIdentity");
+
+
+        // Role
+        Role role = new(this, "ddbRole", new RoleProps
+        {
+            Description = "Role allows DynamoDB Access",
+            AssumedBy = prin
+        });
+
+
+        // Add the role to the 
+        ddbTable.GrantReadWriteData(role);
+
+        var stmt = new PolicyStatement(new PolicyStatementProps
+        {
+            Actions = new string[]{ "dynamodb:DescribeTable" },
+            Effect = Effect.ALLOW,
+            Resources = new string[]{ ddbTable.TableArn }
+        });
+
+        role.AttachInlinePolicy( new Policy(this, "allowDescribeTablePolicy", new PolicyProps
+        {
+            Document = new PolicyDocument(new PolicyDocumentProps
+            {
+                Statements = new PolicyStatement[]
+                {
+                   stmt
+                }
+            })
+        } ));
+
+
+
+
 
         CfnIdentityPoolRoleAttachment identityPoolRoleAttachment = new CfnIdentityPoolRoleAttachment(this, "api-identity-pool-att", new CfnIdentityPoolRoleAttachmentProps
         {
@@ -138,6 +186,8 @@ public class InfraStack : Stack
                 { "authenticated", role.RoleArn  }
             }
         });
+
+
 
 
 

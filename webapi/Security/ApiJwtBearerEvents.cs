@@ -19,7 +19,7 @@ namespace webapi.Security
             if (accessToken is not null)
             {
                 string shortIssuer = context.SecurityToken.Issuer;
-                Creds.AddLogin(shortIssuer, accessToken.RawData);               
+                Creds.AddLogin(shortIssuer.Replace("https://",""), accessToken.RawData);               
             }           
             return Task.CompletedTask;
         }

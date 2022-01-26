@@ -8,4 +8,6 @@ public interface IDataService
 
     public Task<DynamoDataItem> GetDataItem(string itemId);
 
+    public Task<List<DynamoDataItem>> ListDataItems();
+
 }

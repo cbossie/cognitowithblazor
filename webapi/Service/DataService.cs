@@ -50,4 +50,12 @@ public class DataService : IDataService
         await cli.SaveAsync(item, new DynamoDBOperationConfig { TableNamePrefix = DbConfig.TablePrefix });
         return item;
     }
+
+    public async Task<List<DynamoDataItem>> ListDataItems()
+    {
+        var cli = await GetContext();
+        var search = cli.ScanAsync<DynamoDataItem>(null, new DynamoDBOperationConfig { TableNamePrefix = DbConfig.TablePrefix });
+        var data = await search.GetRemainingAsync();
+        return data;
+    }
 }

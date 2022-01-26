@@ -33,7 +33,7 @@ public class DataService : IDataService
     {
         await UpdateHttpClient();
         var resp = (await Client.PostAsJsonAsync($"/DataItem", item).ConfigureAwait(false)).EnsureSuccessStatusCode();
-        var data = await resp.Content.ReadFromJsonAsync<IEnumerable<DataItemModel>>();
+        var data = await resp.Content.ReadFromJsonAsync<DataItemModel>();
         return item;
     }
 }
